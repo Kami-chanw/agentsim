@@ -1,12 +1,13 @@
-from maze.env import CleanMazeEnv
-from maze.visualizer import MazeWindow
-from maze.solve import CentralizedSolver
+from agentsim.maze import MazeWindow, MazeCleanEnv
 import pyglet
 
-env = CleanMazeEnv(15, 20, 5)
-solver = CentralizedSolver(env.to_graph(), env.n_agents)
+env = MazeCleanEnv(5, 5, 5)
 window = MazeWindow(
-    env, solver, width=1000, height=800, caption="Maze Cleaner Simulation"
+    env,
+    width=1000,
+    height=800,
+    caption="Maze Cleaner Simulation",
+    solve_interval=0.5,
 )
 
 pyglet.app.run()
