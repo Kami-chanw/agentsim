@@ -95,7 +95,6 @@ class MazeCleanEnv(SimEnv):
         if old_pos is not None:
             self.maze[*old_pos] = symbol_map["visited"]
             self._graph.nodes[old_pos]["value"] = "visited"
-        pub.sendMessage(ENV_UPDATED)
 
     def reset(self, regenerate=False):
         """
@@ -111,7 +110,6 @@ class MazeCleanEnv(SimEnv):
             self.cached_maze = self.maze_gen(self.w, self.h)
         self.maze = self.cached_maze.copy()
         self.maze_graph = self._to_graph()
-        pub.sendMessage(ENV_UPDATED)
 
     @property
     def maze_graph(self):

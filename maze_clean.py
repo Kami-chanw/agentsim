@@ -1,7 +1,7 @@
 from agentsim.maze import MazeWindow, MazeCleanEnv
 import pyglet
 
-env = MazeCleanEnv(5, 5, 5)
+env = MazeCleanEnv(10, 10, 5)
 window = MazeWindow(
     env,
     width=1000,

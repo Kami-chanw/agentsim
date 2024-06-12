@@ -52,8 +52,11 @@ class PDGameEnv(SimEnv):
         self.reward_matrix = reward_matrix
         self.n_round = n_round
         self.n_replace = n_replace
-        self.n_agents = len(self.agents)
         self.reset()
+
+    @property
+    def n_agents(self):
+        return len(self.agents)
 
     def update(self, id, ret):
         pass
@@ -129,14 +132,14 @@ class PDGameEnv(SimEnv):
     def _evolution(self):
         sorted_agents = sorted(self.agents, key=lambda x: x.coins)
         best_agent_type = sorted_agents[-1].__class__
-        removed_agent_ids = []
+        removed_agents = []
         new_agent_ids = []
         for i in range(self.n_replace):
             agent_to_remove = sorted_agents[i]
+            removed_agents.append((agent_to_remove.id, agent_to_remove.type))
             agent_to_remove.terminate()
             self.agents.remove(agent_to_remove)
             del self.agent_id_map[agent_to_remove.id]
-            removed_agent_ids.append(agent_to_remove.id)
             if agent_to_remove.id in self.on_round:
                 opponent_id = self.on_round.pop(agent_to_remove.id)
                 if opponent_id in self.on_round:
@@ -151,5 +154,6 @@ class PDGameEnv(SimEnv):
         self.reset()
         pub.sendMessage(
             ENV_UPDATED,
-            kwargs={"removed_agent_ids": removed_agent_ids, "new_agent_ids": new_agent_ids},
+            removed_agents=removed_agents,
+            new_agent_ids=new_agent_ids,
         )

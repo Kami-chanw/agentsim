@@ -1,9 +1,5 @@
 import pyglet
 from pyglet.window import key
-import threading
-import time
-from pubsub import pub
-from .config import ENV_UPDATED
 
 
 class WindowBase(pyglet.window.Window):
@@ -11,47 +7,46 @@ class WindowBase(pyglet.window.Window):
         super().__init__(*args, **kwargs)
         self.env = env
 
-        # init for solver thread
-        self.work_thread = threading.Thread(target=self._solve)
-        self.running = run_on_show
-        self.pause = not run_on_show
-        self.solve_interval = solve_interval
-
-        # init for pyglet
         pyglet.gl.glClearColor(0.96, 0.96, 0.96, 1)
         self._batch = pyglet.graphics.Batch()
         self.key_handler = pyglet.window.key.KeyStateHandler()
         self.push_handlers(self.key_handler)
+        self.pause = not run_on_show
+
+        def update(dt):
+            if not self.pause and any(agent.is_alive for agent in self.env.agents):
+                if self.env.step():
+                    self._update_batch()
+                else:
+                    pyglet.clock.unschedule(update)
+
+        pyglet.clock.schedule_interval(update, solve_interval)
 
     def _init_batch(self):
         """
-        Initialize elements used to draw.
+        Initialize elements used to draw. Most of the elements should be initialized in this method.
         """
+        raise NotImplementedError("This method should be implemented by derived class")
+
+    def _update_batch(self):
+        """
+        Update elements in batch. This method will be called periodically after environment updated.
+        """
+        raise NotImplementedError("This method should be implemented by derived class")
 
     def _draw_batch(self):
         """
-        Update elements in batch.
+        Draw elements in batch. If the derived class has other batches to draw, it can override this method to decide the order of rendering.
         """
+        self._batch.draw()
 
     def on_draw(self):
         self.clear()
         self._draw_batch()
 
-    def _solve(self):
-        while self.running and any(agent.is_alive for agent in self.env.agents):
-            while self.pause:
-                time.sleep(0.1)
-            if not self.env.step():
-                return
-            time.sleep(self.solve_interval)
-
-    def on_show(self):
-        self.work_thread.start()
-
     def on_close(self):
         for agent in self.env.agents:
             agent.terminate()
-        self.running = False
         super().on_close()
 
     def on_key_press(self, symbol, modifiers):

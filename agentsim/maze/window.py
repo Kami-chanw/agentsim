@@ -54,7 +54,7 @@ class MazeWindow(WindowBase):
             for agent in self.env.agents
         }
 
-    def _draw_batch(self):
+    def _update_batch(self):
         num_rows, num_cols = self.env.maze.shape
         cell_size = min(self.width / num_cols, self.height / num_rows)
 
@@ -83,5 +83,3 @@ class MazeWindow(WindowBase):
                 self._grid[row][col].width = cell_size
                 self._grid[row][col].height = cell_size
                 self._grid[row][col].color = color
-
-        self._batch.draw()

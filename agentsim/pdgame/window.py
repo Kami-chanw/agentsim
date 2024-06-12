@@ -122,7 +122,7 @@ class PDGameWindow(WindowBase):
         for agent in self.env.agents:
             self._add_agent(agent)
 
-    def _draw_batch(self):
+    def _update_batch(self):
         # Synchronize agent sprites with env.agents
         current_agent_ids = set(self._agent_sprites.keys())
         env_agent_ids = set(agent.id for agent in self.env.agents)
@@ -206,13 +206,7 @@ class PDGameWindow(WindowBase):
             else:
                 line.color = (211, 211, 211)  # Light gray
 
+
+    def _draw_batch(self):
         self._line_batch.draw()
         self._batch.draw()
-
-    def on_draw(self):
-        self.clear()
-        self._draw_batch()
-
-    def on_resize(self, width, height):
-        super().on_resize(width, height)
-        self._draw_batch()
